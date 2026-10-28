@@ -17,8 +17,10 @@ export type Report = {
 
 export type Tenant = { handle: string; name: string; locale: string; form: 'booking-v2' | 'booking-v3' };
 
-export type Cause = 'parser' | 'hint';
-export const CAUSES: readonly Cause[] = ['parser', 'hint'];
+// `shift` is not a flip at all: the date moves by one day (time zones). Nothing on the report or its
+// tenant tells it apart; the desk reads it from the text (desk-notes.json `oneDayMove`).
+export type Cause = 'parser' | 'hint' | 'shift';
+export const CAUSES: readonly Cause[] = ['parser', 'hint', 'shift'];
 
 // What each booking form prints under its date field.
 const DATE_HINT: Record<Tenant['form'], string> = {
@@ -37,7 +39,7 @@ export function dayFirst(locale: string): boolean {
 // The shared parser reads every date month first. A day-first tenant's dates come out flipped:
 // that is `parser`. Through booking-v3's form the tenant's people type what the hint tells them,
 // month first, and the form reads it the tenant's way: that is `hint`, a different bug.
-export function causeOf(r: Pick<Report, 'channel'>, t: Tenant | undefined): Cause | null {
+export function causeOf(r: Pick<Report, 'channel'>, t: Tenant | undefined): Exclude<Cause, 'shift'> | null {
   if (!t || !dayFirst(t.locale)) return null;
   return r.channel === 'form' && DATE_HINT[t.form].startsWith('MM') ? 'hint' : 'parser';
 }
@@ -63,10 +65,15 @@ export type CauseGroup = {
   mergedInto: number[];
 };
 
-export function groupByCause(reports: Report[], tenantOf: (r: Report) => Tenant | undefined): CauseGroup[] {
+// `shifted`: ids the desk read as a one-day move. They are their own cause, whatever the tenant.
+export function groupByCause(
+  reports: Report[],
+  tenantOf: (r: Report) => Tenant | undefined,
+  shifted: readonly string[] = [],
+): CauseGroup[] {
   const byCause = new Map<CauseGroup['cause'], Report[]>();
   for (const r of reports) {
-    const cause = causeOf(r, tenantOf(r)) ?? 'unplaced';
+    const cause = shifted.includes(r.id) ? 'shift' : (causeOf(r, tenantOf(r)) ?? 'unplaced');
     byCause.set(cause, [...(byCause.get(cause) ?? []), r]);
   }
   return [...byCause.entries()]

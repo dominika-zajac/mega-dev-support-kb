@@ -1,30 +1,35 @@
 ---
 layout: runbook
-title: '#4471 is two problems'
+title: '#4471 is three problems'
 owner: Dominika Zając
 status: open
 reviewed: 2026-10-28
-signature: Dominika Zając
+signature: v1.eyJzdWIiOiI2ODc5IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMxNzMzNjgsImV4cCI6MTc5MzI1OTc2OH0.UKabzVSC0vyd-MrtcvT28L2B5T3USo86ymvYz93oKFc
 ---
 
 <script>
   import CauseTable from '#lib/kb/CauseTable.svelte';
   import Callout from '#lib/kb/Callout.svelte';
   import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/dominika-zajac/mega-dev-support-kb/issues';
+  const filed = { parser: `${repo}/1`, hint: `${repo}/2`, shift: `${repo}/3` };
 </script>
 
-Ticket #4471 was merged as one known issue and queued as one fix. The reports in it are not one cause.
+Ticket #4471 was merged as one known issue and queued as one fix. The reports in it are three different bugs, and each now has its own ticket.
 
-<CauseTable ticket={4471} />
+<CauseTable ticket={4471} {filed} />
 
 `parser` is the shared date parser. It reads every date month first. A day-first tenant's dates come out flipped: the month and the day trade places.
 
-`hint` is the booking-v3 form. The hint under the field says `MM/DD/YYYY`, so people type the month first. The form then reads that text the tenant's way, day first. Same symptom, different bug. The table marks it as not this ticket: it has no ticket of its own.
+`hint` is the booking-v3 form. The hint under the field says `MM/DD/YYYY`, so people type the month first. The form then reads that text the tenant's way, day first. Same symptom as `parser`, different code.
 
-A parser fix does not correct the hint. A hint fix does not correct the parser.
+`shift` is not a flip. The date moves by one day: Tuesday shows as Monday, a meeting lands a day apart in Lisbon and Toronto, only June is off. That is time-zone or daylight-saving conversion. The desk had read these as a one-day move (`desk-notes.json`) but left them in the count of their tenant's cause.
 
 <Callout kind="warn">
-Five reports were read as a one-day move. They stay in the count of the cause they were filed under. The note under the table is that reading.
+One fix does not close the others. The queued parser fix leaves the hint and the shift in place.
 </Callout>
+
+The export lists some reports twice. The table counts each report id once.
 
 <RenderStamp {signature} />
