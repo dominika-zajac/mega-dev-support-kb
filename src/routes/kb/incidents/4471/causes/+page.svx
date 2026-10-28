@@ -1,0 +1,30 @@
+---
+layout: runbook
+title: '#4471 is two problems'
+owner: Dominika Zając
+status: open
+reviewed: 2026-10-28
+signature: Dominika Zając
+---
+
+<script>
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+Ticket #4471 was merged as one known issue and queued as one fix. The reports in it are not one cause.
+
+<CauseTable ticket={4471} />
+
+`parser` is the shared date parser. It reads every date month first. A day-first tenant's dates come out flipped: the month and the day trade places.
+
+`hint` is the booking-v3 form. The hint under the field says `MM/DD/YYYY`, so people type the month first. The form then reads that text the tenant's way, day first. Same symptom, different bug. The table marks it as not this ticket: it has no ticket of its own.
+
+A parser fix does not correct the hint. A hint fix does not correct the parser.
+
+<Callout kind="warn">
+Five reports were read as a one-day move. They stay in the count of the cause they were filed under. The note under the table is that reading.
+</Callout>
+
+<RenderStamp {signature} />
