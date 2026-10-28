@@ -9,15 +9,7 @@
     status,
     reviewed,
     children,
-    signature: _signature = undefined,
-  }: {
-    title: string;
-    owner: string;
-    status: string;
-    reviewed: Day;
-    children: Snippet;
-    signature?: string;
-  } = $props();
+  }: { title: string; owner: string; status: string; reviewed: Day; children: Snippet } = $props();
 
   const age = $derived(daysSince(reviewed));
   const stale = $derived(age > STALE_AFTER_DAYS);

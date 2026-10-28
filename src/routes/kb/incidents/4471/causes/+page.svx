@@ -11,23 +11,20 @@ signature: v1.eyJzdWIiOiI2ODc5IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYX
   import CauseTable from '#lib/kb/CauseTable.svelte';
   import Callout from '#lib/kb/Callout.svelte';
   import RenderStamp from '#lib/kb/RenderStamp.svelte';
-
-  const repo = 'https://github.com/dominika-zajac/mega-dev-support-kb/issues';
-  const filed = { parser: `${repo}/1`, hint: `${repo}/2`, shift: `${repo}/3` };
 </script>
 
-Ticket #4471 was merged as one known issue and queued as one fix. The reports in it are three different bugs, and each now has its own ticket.
+Ticket #4471 was merged as one known issue and queued as one fix. The reports in it are three different bugs. Each has its own ticket: [parser #1](https://github.com/dominika-zajac/mega-dev-support-kb/issues/1), [hint #2](https://github.com/dominika-zajac/mega-dev-support-kb/issues/2), [shift #3](https://github.com/dominika-zajac/mega-dev-support-kb/issues/3).
 
-<CauseTable ticket={4471} {filed} />
+<CauseTable ticket={4471} />
 
 `parser` is the shared date parser. It reads every date month first. A day-first tenant's dates come out flipped: the month and the day trade places.
 
 `hint` is the booking-v3 form. The hint under the field says `MM/DD/YYYY`, so people type the month first. The form then reads that text the tenant's way, day first. Same symptom as `parser`, different code.
 
-`shift` is not a flip. The date moves by one day: Tuesday shows as Monday, a meeting lands a day apart in Lisbon and Toronto, only June is off. That is time-zone or daylight-saving conversion. The desk had read these as a one-day move (`desk-notes.json`) but left them in the count of their tenant's cause.
+`shift` is not a flip. The date moves by one day: Tuesday shows as Monday, a meeting lands a day apart in Lisbon and Toronto, only June is off. That is time-zone or daylight-saving conversion. The desk reads these as a one-day move (`desk-notes.json`) and counts them where they were filed, under `parser`: the note under the table. The parser fix does not fix them.
 
 <Callout kind="warn">
-One fix does not close the others. The queued parser fix leaves the hint and the shift in place.
+#4471 closed on 5 October. <code>parser</code> is fixed (<code>fix(dates): parse dd/mm for eu locales</code>). <code>hint</code> is won't fix: the booking-v3 form is retired. <code>shift</code> has no fix yet.
 </Callout>
 
 The export lists some reports twice. The table counts each report id once.
